@@ -1,5 +1,5 @@
 import samp
-from pysamp import *
+from pysamp import on_gamemode_init, set_game_mode_text
 from pysamp.player import Player
 from python.dialogchain import DialogChain
 
@@ -8,91 +8,96 @@ samp.config(encoding='cp1251')
 
 
 @on_gamemode_init
-def on_gamemode_init():
-    set_game_mode_text('Dialog Chain')
+def on_init():
+    set_game_mode_text('DialogChain Demo')
 
 
-def dc_1_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
-    dialog_chain: DialogChain = kwargs['dialog_chain']
-    current_dialog_id = dialog_chain.get_current_dialog_id()
+def dc_demo_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
+    dc: DialogChain = kwargs['dialog_chain']
+    dc_storage: dict = dc.get_storage()
 
-    match current_dialog_id:
+    match dc.get_current_dialog_id():
         case 0:
             if not response:
-                player.send_client_message(-1, '{ff90aa}Thanks for watching demo DialogChain! <3')
+                player.send_client_message(-1, '{90ffaa}Thanks for watching demo DialogChain! <3')
                 return
             
-            elif not input_text.strip():
-                dialog_chain.add_replacements({'error_message': ', {ff90aa}please{ffffff}'})
-                return dialog_chain.update(player)
-            
-            dialog_chain.add_replacements({'input_text_from_dialog_0': input_text})
-            return dialog_chain.next(player)
-        
+            if not input_text.strip():
+                dc.add_placeholders({'error_message': ', {ffaa90}please{ffffff}'})
+                return dc.update()
+
+            dc.add_to_storage({'player_name': input_text.strip()})
+            return dc.next()
+
         case 1:
             if not response:
-                dialog_chain.set_replacements({'error_message': ''})
-                return dialog_chain.prev(player)
+                return dc.show()
             
+            dc.add_placeholders({'select_item_text': input_text.strip()})
+
             match select_item:
                 case 0:
-                    return dialog_chain.show(player, 3)
+                    return dc.show(3)
+                
+                case 1:
+                    dc_storage['click_counter'] += 1
+                    return dc.update()
                 
                 case _:
-                    dialog_chain.add_replacements({'select_item_text': input_text})
-                    return dialog_chain.next(player)
+                    return dc.next()
         
-        case 2:
-            return dialog_chain.prev(player)
-                
         case 3:
             if not response:
-                return dialog_chain.show(player, 1)
+                return dc.back()
             
-            dialog_chain.set_replacements({'error_message': ''})
-            return dialog_chain.show(player)
+            dc.add_placeholders({'error_message': ''})
+            return dc.show()
+        
+
+def custom_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
+    dc: DialogChain = kwargs['dialog_chain']
+    return dc.back()
 
 
-dc_1_dialogs = [
+dc_demo_dialogs = [
     {
         'type': 1,
-        'title': '{ffffaa}Dialog 0',
-        'content': '{ffffff}Enter your name$error_message$:',
-        'button_1': 'Next',
-        'button_2': 'Close',
-        'on_response': dc_1_response,
-        'custom_arg_1': 1,
-        'custom_arg_2': 2
+        'content': '{ffffff}Type your name$error_message$:',
+        'buttons': ['Next', 'Close']
     },
     {
         'type': 2,
-        'title': '{ffffaa}Dialog 1',
-        'content': '{ffffff}Your name: {90ffaa}$input_text_from_dialog_0$\nList item 2\nList item 3',
-        'button_1': 'Select',
-        'button_2': 'Back',
-        'on_response': dc_1_response
+        'content': '{ffffff}Your name: {90ffaa}%player_name%\nClick counter: {90aaff}%click_counter%\nList item 2\nList item 3',
+        'buttons': ['Select', 'Back']
     },
     {
         'type': 0,
-        'title': '{ffffaa}Dialog 2',
+        'title': '{ffaa90}Custom Title',
         'content': '{ffffff}You select: {90ffaa}$select_item_text$',
-        'button_1': 'Cool',
-        'button_2': '',
-        'on_response': dc_1_response
+        'buttons': ['Cool', ''],
+        'on_response': custom_response
     },
     {
         'type': 0,
-        'title': '{ffffaa}Dialog 3',
         'content': '{ffffff}Want to change your name?',
-        'button_1': '{ffffaa}Yes',
-        'button_2': 'No, thx',
-        'on_response': dc_1_response
-    }
+        'buttons': ['{ffffaa}Yes', 'No, tnx']
+    },
 ]
 
 
 @Player.on_connect
 def on_player_connect(player: Player):
-    dc_1 = DialogChain.create(dc_1_dialogs)
-    dc_1.add_replacements({'error_message': ''})
-    dc_1.show(player)
+    dc_demo = DialogChain.create(
+        for_player=player,
+        dialogs=dc_demo_dialogs,
+        title='{ffffaa}Default Title',
+        on_response=dc_demo_response
+    )
+    dc_demo.add_to_storage({
+        'player_name': '',
+        'click_counter': 0
+    })
+    dc_demo.add_placeholders({
+        'error_message': ''
+    })
+    dc_demo.show()

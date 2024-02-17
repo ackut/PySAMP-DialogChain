@@ -9,47 +9,42 @@
 2. Create dialog chain response function, using template:
    ```py
    dc_1_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
-        dialog_chain: DialogChain = kwargs['dialog_chain']
-        current_dialog_id: int = dialog_chain.get_current_dialog_id()
+        dc: DialogChain = kwargs['dialog_chain']
    
-        print(f'Your custom arguments in dialog {current_dialog_id}: {args}'
-   
-        match current_dialog_id:
+        match dc.get_current_dialog_id():
              case 0:
                   if not response:
-                       return dialog_chain.update(player)
+                       return dc.update()
          
-                  return dialog_chain.next(player)
+                  return dc.next()
       
              case _:
                   if not response:
-                       return dialog_chain.prev(player)
+                       return dc.back()
             
-                  return dialog_chain.update(player)
+                  return dc.update()
    ```
 3. Create dialog list using template:
    ```py
    dc_1_dialogs: list[dict] = [
         {
              'type': 0,
-             'title': 'Dialog 0',
              'content': 'Content in dialog 0',
-             'button_1': 'Next',
-             'button_2': 'Back',
-             'on_response': dc_1_response,
-             'custom_arg_1': 'I Love Donuts'
+             'buttons': ['Next', 'Back']
         },
         {
              'type': 0,
-             'title': 'Dialog 1',
              'content': 'Content in dialog 1',
-             'button_1': '',
-             'button_2': 'Back',
-             'on_response': dc_1_response
+             'buttons': ['', 'Back']
         }
    ]
    ```
 5. Create and show dialog chain, using DialogChain.create() method.
    ```py
-   DialogChain.create(dc_1_dialogs).show(player)
+     DialogChain.create(
+          for_player=player,
+          dialogs=dc_1_dialogs,
+          title='Default Title'
+          on_response=dc_1_response
+     ).show()
    ```

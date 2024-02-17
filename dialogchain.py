@@ -1,17 +1,34 @@
+from typing import Callable, Optional
 from pysamp.dialog import Dialog
 from pysamp.player import Player
 
 
 class DialogChain:
-    def __init__(self, dialogs: list) -> None:
-        self.current_dialog_id: int
+    def __init__(
+        self,
+        player: "Player",
+        dialogs: list,
+        title: str,
+        on_response: Optional[Callable]
+    ) -> None:
+        self.player: "Player" = player
+        self.last_dialog_id: int = 0
+        self.current_dialog_id: int = 0
+        self.title: str = title
+        self.on_response: Optional[Callable] = on_response
         self.dialogs: list[dict] = dialogs
         self.storage: dict = {}
-        self.replacements: dict = {}
+        self.placeholders: dict = {}
 
     @classmethod
-    def create(cls, dialogs: list) -> "DialogChain":
-        return cls(dialogs)
+    def create(
+        cls,
+        for_player: "Player",
+        dialogs: list,
+        title: str = None,
+        on_response: Optional[Callable] = None
+    ) -> "DialogChain":
+        return cls(for_player, dialogs, title, on_response)
     
     def set_current_dialog_id(self, dialog_id: int) -> int:
         self.current_dialog_id = dialog_id
@@ -20,53 +37,82 @@ class DialogChain:
     def get_current_dialog_id(self) -> int:
         return self.current_dialog_id
     
+    def set_last_dialog_id(self, dialog_id: int) -> int:
+        self.last_dialog_id = dialog_id
+        return dialog_id
+    
+    def get_last_dialog_id(self) -> int:
+        return self.last_dialog_id
+    
     def set_storage(self, storage: dict) -> dict:
         self.storage = storage
         return self.storage
     
     def add_to_storage(self, data: dict) -> dict:
         self.storage.update(data)
-        return self.replacements
+        return self.placeholders
 
     def get_storage(self) -> dict:
         return self.storage
     
-    def set_replacements(self, replacements: dict) -> dict:
-        self.replacements = replacements
-        return self.replacements
+    def set_placeholders(self, placeholders: dict) -> dict:
+        self.placeholders = placeholders
+        return self.placeholders
     
-    def add_replacements(self, replacements: dict) -> dict:
-        self.replacements.update(replacements)
-        return self.replacements
+    def add_placeholders(self, placeholders: dict) -> dict:
+        self.placeholders.update(placeholders)
+        return self.placeholders
 
-    def get_replacements(self) -> dict:
-        return self.replacements
+    def get_placeholders(self) -> dict:
+        return self.placeholders
     
-    def show(self, player: "Player", dialog_id: int = 0) -> int:
+    def show(self, dialog_id: int = 0) -> int:
+        self.set_last_dialog_id(self.get_current_dialog_id())
         self.set_current_dialog_id(dialog_id)
-        dialog_data = self.dialogs[dialog_id].copy()
+        storage = self.get_storage()
+        placeholders = self.get_placeholders()
+        dialog = self.dialogs[dialog_id].copy()
+        dialog_title = dialog['title'] if 'title' in dialog else self.title
 
-        if self.get_replacements():
-            for k, v in self.get_replacements().items():
-                dialog_data['content'] = str.replace(
-                    dialog_data['content'], f'${k}$', v
+        if placeholders or storage:
+            for k, v in placeholders.items():
+                dialog['content'] = str.replace(
+                    dialog['content'], f'${k}$', str(v)
+                )
+                dialog_title = str.replace(
+                    dialog_title, f'${k}$', str(v)
+                )
+                
+            for k, v in storage.items():
+                dialog['content'] = str.replace(
+                    dialog['content'], f'%{k}%', str(v)
+                )
+                dialog_title = str.replace(
+                    dialog_title, f'%{k}%', str(v)
                 )
         
-        Dialog.create(*dialog_data.values(), dialog_chain=self).show(player)
+        Dialog.create(
+            type=dialog['type'],
+            title=dialog_title,
+            content=dialog['content'],
+            button_1=dialog['buttons'][0],
+            button_2=dialog['buttons'][1],
+            on_response=dialog['on_response'] if 'on_response' in dialog else self.on_response,
+            *[i for i in dialog.values()][6:],
+            dialog_chain=self
+        ).show(self.player)
+        
         return dialog_id
     
-    def next(self, player: "Player") -> int:
+    def next(self) -> int:
         if self.current_dialog_id < len(self.dialogs) - 1:
-            return self.show(player, self.current_dialog_id + 1)
+            return self.show(self.current_dialog_id + 1)
         
-        return self.show(player, self.current_dialog_id)
+        return self.show(self.current_dialog_id)
         
-    def prev(self, player: "Player") -> int:
-        if self.current_dialog_id > 0:
-            return self.show(player, self.current_dialog_id - 1)
-        
-        return self.show(player)
+    def back(self) -> int:
+        return self.show(self.get_last_dialog_id())
     
-    def update(self, player: "Player") -> int:
-        return self.show(player, self.get_current_dialog_id())
+    def update(self) -> int:
+        return self.show(self.get_current_dialog_id())
     
