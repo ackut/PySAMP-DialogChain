@@ -7,11 +7,11 @@
 4. Easy navigation through the chain: .show(dialog_id) .next() .back() .update()
 5. Return to last closed dialog: .back()
 
-# Setup
+### Setup
 1. Add *args, **kwargs to your ./python/pysamp/dialog.py (For example from this repository).
 2. Put dialogchain.py from this repository from your ./python/ folder.
 
-# Use
+### Use
 1. Import DialogChain class from dialogchain.py
 2. Create dialog chain response function, using template:
 ```py
