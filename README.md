@@ -12,6 +12,8 @@
 2. Put dialogchain.py from this repository from your ./python/ folder.
 
 ### Use
+Check `__init__.py` from repo, for more information.
+
 1. Import DialogChain class from dialogchain.py
 2. Create dialog chain response function, using template:
 ```py
