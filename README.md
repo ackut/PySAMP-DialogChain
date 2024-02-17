@@ -29,7 +29,7 @@
    ```
 3. Create dialog list using template:
    ```py
-   dc_1_dialogs = [
+   dc_1_dialogs: list[dict] = [
         {
              'type': 0,
              'title': 'Dialog 0',
