@@ -7,7 +7,7 @@
 ## Use
 1. Import DialogChain class from dialogchain.py
 2. Create dialog chain response function, using template:
-   ```
+   ```py
    dc_1_response(player: Player, response: int, input_text: str, select_item: int, *args, **kwargs):
      dialog_chain: DialogChain = kwargs['dialog_chain']
      current_dialog_id: int = dialog_chain.get_current_dialog_id()
@@ -28,7 +28,7 @@
          return dialog_chain.update(player)
    ```
 3. Create dialog list using template:
-   ```
+   ```py
    dc_1_dialogs = [
      {
        'type': 0,
@@ -50,6 +50,6 @@
    ]
    ```
 5. Create and show dialog chain, using DialogChain.create() method.
-   ```
+   ```py
    DialogChain.create(dc_1_dialogs).show(player)
    ```
