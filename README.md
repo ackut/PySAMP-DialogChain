@@ -17,7 +17,7 @@ Check `__init__.py` from repo, for more information.
 1. Import DialogChain class from dialogchain.py
 2. Create dialog chain response function, using template:
 ```py
-dc_1_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
+def dc_1_response(player: Player, response: int, select_item: int, input_text: str, *args, **kwargs):
      dc: DialogChain = kwargs['dialog_chain']
 
      match dc.get_current_dialog_id():
