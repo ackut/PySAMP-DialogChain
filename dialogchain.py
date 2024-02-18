@@ -70,10 +70,12 @@ class DialogChain:
         self.set_last_dialog_id(self.get_current_dialog_id())
         self.set_current_dialog_id(dialog_id)
         storage = self.get_storage()
-        self.add_placeholders(storage)
         placeholders = self.get_placeholders()
         dialog = self.dialogs[dialog_id].copy()
         dialog_title = dialog['title'] if 'title' in dialog else self.title
+
+        for k, v in storage.items():
+            self.add_placeholders({f's:{k}': v})
 
         if placeholders or storage:
             for k, v in placeholders.items():
