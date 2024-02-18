@@ -9,7 +9,7 @@
 
 ### Setup
 1. Add *args, **kwargs to your `./python/pysamp/dialog.py` (For example from this repository).
-2. Put dialogchain.py from this repository from your `./python/` folder.
+2. Put dialogchain.py from this repository in your `./python/` folder.
 
 ### Use
 Check `__init__.py` from repo, for more information.
