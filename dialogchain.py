@@ -70,6 +70,7 @@ class DialogChain:
         self.set_last_dialog_id(self.get_current_dialog_id())
         self.set_current_dialog_id(dialog_id)
         storage = self.get_storage()
+        self.add_placeholders(storage)
         placeholders = self.get_placeholders()
         dialog = self.dialogs[dialog_id].copy()
         dialog_title = dialog['title'] if 'title' in dialog else self.title
@@ -81,14 +82,6 @@ class DialogChain:
                 )
                 dialog_title = str.replace(
                     dialog_title, f'${k}$', str(v)
-                )
-                
-            for k, v in storage.items():
-                dialog['content'] = str.replace(
-                    dialog['content'], f'%{k}%', str(v)
-                )
-                dialog_title = str.replace(
-                    dialog_title, f'%{k}%', str(v)
                 )
         
         Dialog.create(

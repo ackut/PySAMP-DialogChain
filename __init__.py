@@ -67,7 +67,7 @@ dc_demo_dialogs = [
     },
     {
         'type': 2,
-        'content': '{ffffff}Your name: {90ffaa}%player_name%\nClick counter: {90aaff}%click_counter%\nList item 2\nList item 3',
+        'content': '{ffffff}Your name: {90ffaa}$player_name$\nClick counter: {90aaff}$click_counter$\nList item 2\nList item 3',
         'buttons': ['Select', 'Back']
     },
     {
