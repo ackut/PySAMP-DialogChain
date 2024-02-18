@@ -3,7 +3,7 @@
 ## Features
 1. Easy to work with dialogs. DRY.
 2. Replaceable placeholders: `$placeholder_value$`.
-3. Storage in the dialog chain. (Items from storage are automatically added to placeholders)
+3. Storage in the dialog chain. (Storage items auto-added to placeholders with format `$s:storage_value$`).
 4. Easy navigation through the chain: `.show() .next() .prev() .back() .update()`
 5. Return to last closed dialog: `.back()`
 
