@@ -4,12 +4,12 @@
 1. Easy to work with dialogs. DRY.
 2. Replaceable placeholders: `$placeholder_value$`.
 3. Storage in the dialog chain. (Items from storage are automatically added to placeholders)
-4. Easy navigation through the chain: `.show(dialog_id) .next() .back() .update()`
+4. Easy navigation through the chain: `.show() .next() .prev() .back() .update()`
 5. Return to last closed dialog: `.back()`
 
 ### Setup
 1. Add *args, **kwargs to your `./python/pysamp/dialog.py` (For example from this repository).
-2. Put dialogchain.py from this repository in your `./python/` folder.
+2. Put `dialogchain.py` from this repository in your `./python/` folder.
 
 ### Use
 Check `__init__.py` from repo, for more information.
@@ -29,7 +29,7 @@ def dc_1_response(player: Player, response: int, select_item: int, input_text: s
      
           case _:
                if not response:
-                    return dc.back()
+                    return dc.prev()
           
                return dc.update()
 ```
@@ -39,7 +39,7 @@ dc_1_dialogs: list[dict] = [
      {
           'type': 0,
           'content': 'Content in dialog 0',
-          'buttons': ['Next', 'Back']
+          'buttons': ['Next', '']
      },
      {
           'type': 0,

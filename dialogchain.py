@@ -67,6 +67,7 @@ class DialogChain:
         return self.placeholders
     
     def show(self, dialog_id: int = 0) -> int:
+        """ Open dialog from dialog list """
         self.set_last_dialog_id(self.get_current_dialog_id())
         self.set_current_dialog_id(dialog_id)
         storage = self.get_storage()
@@ -100,14 +101,24 @@ class DialogChain:
         return dialog_id
     
     def next(self) -> int:
+        """ Open next dialog from dialog list """
         if self.current_dialog_id < len(self.dialogs) - 1:
             return self.show(self.current_dialog_id + 1)
         
         return self.show(self.current_dialog_id)
+
+    def prev(self) -> int:
+        """ Open previous dialog from dialog list """
+        if self.current_dialog_id > 0:
+            return self.show(self.current_dialog_id - 1)
+
+        return self.show()
         
     def back(self) -> int:
+        """ Open last closed dialog from this DialogChain """
         return self.show(self.get_last_dialog_id())
     
     def update(self) -> int:
+        """ Reopen current DialogChain dialog """
         return self.show(self.get_current_dialog_id())
     
