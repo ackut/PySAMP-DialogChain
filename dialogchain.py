@@ -68,7 +68,9 @@ class DialogChain:
     
     def show(self, dialog_id: int = 0) -> int:
         """ Open dialog from dialog list """
-        self.set_last_dialog_id(self.get_current_dialog_id())
+        if self.last_dialog_id != dialog_id:
+            self.set_last_dialog_id(self.get_current_dialog_id())
+        
         self.set_current_dialog_id(dialog_id)
         storage = self.get_storage()
         placeholders = self.get_placeholders()
